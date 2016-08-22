@@ -1,6 +1,6 @@
 ﻿Function Main
 {
-
+## Comment
 $folder = Get-Location
 $Global:log = "$folder\log.txt"
 $count = 0
