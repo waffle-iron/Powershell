@@ -23,7 +23,7 @@ Log-Line "Script Path = $scriptpath" $log
 IF (Test-Path $scriptpath\*.sql -eq True) {
 
 	## Returns array of systems needing updated
-	$systemarr = Invoke-Sqlcmd -ServerInstance "Karmak_Internal" -Database "QA" -Query "Select SystemID from System Where BuildID = $BuildID and IsActive = 1"
+	$systemarr = Invoke-Sqlcmd -ServerInstance "Karmak_Internal" -Database "QA" -Query "Select SystemID from System Where BuildID = $BuildID and IsActive = 1 and IsActiveBuilds = 1"
     Try {
 
 	## Cycles through the systems, returns the QA config data, and runs the database script for each
