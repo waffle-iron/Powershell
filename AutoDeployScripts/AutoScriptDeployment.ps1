@@ -1,72 +1,4 @@
-﻿## Functions
-## Logging function
-Function Log-Line ($message, $logfile)
-{
-    Write-Host $message
-    $message | Out-File $logfile -Append
-}
-
-<# Calculate Date
-Function Calc-Date
-{
-        $date = Get-Date
-        $y = $date.year 
-        $mo = $date.month 
-        $d = $date.day
-        $h = $date.hour
-        $mi = $date.minute
-        $s = $date.second
-}
-#>
-
-
-## Deploy database scripts
-Function Deploy-DBScript($sqlserver, $databasename, $runscript)
-{
-    Try {
-        Invoke-Sqlcmd -ServerInstance $sqlserver -Database $databasename -InputFile $runscript -OutputSqlErrors $true -QueryTimeout 300 -AbortOnError -Verbose
-        Log-Line "Database script $runscript has been ran on $sqlserver $databasename" $log
-    }
-    Catch {
-        Log-Line "*** ERROR DATABASE SCRIPTS FAILED ***" $log
-        Log-Line $_.Exception.Message $log
-        Log-Line "SQL Server = $sqlserver" $log
-        Log-Line "Database Name = $databasename" $log
-        Log-Line "Script = $runscript" $log
-        $date = Get-Date
-        $y = $date.year 
-        $mo = $date.month 
-        $d = $date.day
-        $h = $date.hour
-        $mi = $date.minute
-        $s = $date.second
-        ## Rename-Item -Path $runscript -NewName $Build"_Script_Failed_"$y$mo$d$h$mi$s".txt"
-        Error-Exit
-    }
-}
-
-## Check to see if file exists
-Function Test-Path($filepath)
-{
-    Get-ChildItem -Path $filepath
-}
-
-## Error exit
-Function Error-Exit
-{
-    $date = Get-Date
-    $y = $date.year 
-    $mo = $date.month 
-    $d = $date.day
-    $h = $date.hour
-    $mi = $date.minute
-    $s = $date.second
-    Rename-Item -Path $log -NewName $Build"_Failure_"$y$mo$d$h$mi$s".log"
-    Exit
-}
-
-## ===============================================================================================================================
-
+﻿
 ## Create logging file
 $log = Get-Location
 $log = "$log\Script_Deployment_log.txt"
@@ -136,4 +68,77 @@ IF (Test-Path $scriptpath\*.sql -eq True) {
 } ELSE {
 Log-Line "No Scripts" $log
 Exit
+}  #  <----- End of Main
+
+## ===============================================================================================================================
+
+## Functions
+## Logging function
+Function Log-Line ($message, $logfile)
+{
+    Write-Host $message
+    $message | Out-File $logfile -Append
 }
+
+<# Calculate Date
+Function Calc-Date
+{
+        $date = Get-Date
+        $y = $date.year 
+        $mo = $date.month 
+        $d = $date.day
+        $h = $date.hour
+        $mi = $date.minute
+        $s = $date.second
+}
+#>
+
+
+## Deploy database scripts
+Function Deploy-DBScript($sqlserver, $databasename, $runscript)
+{
+    Try {
+        Invoke-Sqlcmd -ServerInstance $sqlserver -Database $databasename -InputFile $runscript -OutputSqlErrors $true -QueryTimeout 300 -AbortOnError -Verbose
+        Log-Line "Database script $runscript has been ran on $sqlserver $databasename" $log
+    }
+    Catch {
+        Log-Line "*** ERROR DATABASE SCRIPTS FAILED ***" $log
+        Log-Line $_.Exception.Message $log
+        Log-Line "SQL Server = $sqlserver" $log
+        Log-Line "Database Name = $databasename" $log
+        Log-Line "Script = $runscript" $log
+        $date = Get-Date
+        $y = $date.year 
+        $mo = $date.month 
+        $d = $date.day
+        $h = $date.hour
+        $mi = $date.minute
+        $s = $date.second
+        ## Rename-Item -Path $runscript -NewName $Build"_Script_Failed_"$y$mo$d$h$mi$s".txt"
+        Error-Exit
+    }
+}
+
+## Check to see if file exists
+Function Test-Path($filepath)
+{
+    Get-ChildItem -Path $filepath
+}
+
+## Error exit
+Function Error-Exit
+{
+    $date = Get-Date
+    $y = $date.year 
+    $mo = $date.month 
+    $d = $date.day
+    $h = $date.hour
+    $mi = $date.minute
+    $s = $date.second
+    Rename-Item -Path $log -NewName $Build"_Failure_"$y$mo$d$h$mi$s".log"
+    Exit
+}
+
+## ===============================================================================================================================
+
+Main
