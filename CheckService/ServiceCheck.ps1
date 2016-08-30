@@ -2,9 +2,11 @@
 {
 
 $folder = Get-Location
-$Global:log = "$folder\log.txt"
+$Global:log = "$folder\log.html"
 $count = 0
 Get-Date | Out-File $log
+Log-Break
+Log-Line "<a href='\\qaserver5\Scripts\ServiceCheck\Call ServiceCheck.bat'>RUN SERVICECHECK</a>"
     Try {
     $systemarr = Invoke-Sqlcmd -ServerInstance "Karmak_Internal" -Database "QA" -Query "Select SystemID from System Where IsActive = 1"
     } 
@@ -39,7 +41,8 @@ FOREACH($system in $systemarr.SystemID) {
         
             $a = Get-Service -ComputerName "$servername" -Name "$config" | Where-Object {$_.Status -ne 'Running'} | Format-Table -AutoSize
             IF ($a -ne $null) {
-                Log-Line $server 
+                Log-Line $server
+                Log-Break
                 Log-Line $a 
                 $count = $count + 1
             }
@@ -48,10 +51,14 @@ FOREACH($system in $systemarr.SystemID) {
 
 $d = Get-Date
 IF ($count -eq 0) {
+    Log-Break
     Log-Line "No services down. :)" 
+    Log-Break
     Log-Line $d 
 } ELSE {
+    Log-Break
     Log-Line "$count services down. :(" 
+    Log-Break
     Log-Line $d 
 }
 
@@ -68,6 +75,12 @@ Function Log-Error ($message)
     Log-Line "***ERROR***" 
     Log-Line $message 
     Log-Line "***********" 
+}
+
+Function Log-Break ()
+{
+    Log-Line "<br>"
+    Log-Line "<br>"
 }
 
 Main
