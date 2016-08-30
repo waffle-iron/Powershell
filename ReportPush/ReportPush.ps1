@@ -13,20 +13,28 @@ Function Main
 
 $folder = Get-Location
 $Global:log = "$folder\ReportPush_log.txt"
+"Starting log" | Out-File $log
 
-If (Test-Path \\qaserver4\D$\Builds\ReportPush\Current\Stop.txt -IsValid) 
+If (Test-Path "\\qaserver4\D$\Builds\ReportPush\Current\Stop.txt" )
 {
     Log-Line "Stopping"
     EXIT
 }
-
-If (Test-Path \\qaserver2\ReportPush\Current\ -Include "*.txt" -IsValid) 
+ElseIf (Test-Path "\\qaserver2\ReportPush\Current\*.rpt")
+{
+    ## TODO add code to push the reports
+    Log-Line "Pushing reports"
+    EXIT
+}
+Else
 {
     Log-Line "No reports to push"
-    EXIT
 }
 
 }  # <-----  End of Main
+
+
+
 
 
 Function Log-Line ($message)
