@@ -16,11 +16,3 @@ Function Log-Error ($message)
     Log-Line $message 
     Log-Line "***********" 
 }
-
-Function New-Function
-{
-
-    ## NEW CODE
-
-}
-
