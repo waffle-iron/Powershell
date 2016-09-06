@@ -41,9 +41,10 @@ FOREACH($system in $systemarr.SystemID) {
         
             $a = Get-Service -ComputerName "$servername" -Name "$config" | Where-Object {$_.Status -ne 'Running'} | Format-Table -AutoSize
             IF ($a -ne $null) {
-                Log-Line $server
                 Log-Break
                 Log-Line $a 
+                Log-Line $server
+                Log-Break
                 $count = $count + 1
             }
         }
