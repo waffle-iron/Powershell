@@ -8,7 +8,7 @@ Get-Date | Out-File $log
 Log-Break
 Log-Line "<a href='\\qaserver5\Scripts\ServiceCheck\Call ServiceCheck.bat'>RUN SERVICECHECK</a>"
     Try {
-    $systemarr = Invoke-Sqlcmd -ServerInstance "Karmak_Internal" -Database "QA" -Query "Select SystemID from System Where IsActive = 1"
+    $systemarr = Query-Database "Select SystemID from System Where IsActive = 1"
     } 
     Catch {
     Log-Error "Failed to return system data array"
@@ -23,9 +23,9 @@ Log-Line "<a href='\\qaserver5\Scripts\ServiceCheck\Call ServiceCheck.bat'>RUN S
 FOREACH($system in $systemarr.SystemID) {
     
     Try {
-    $server = Invoke-Sqlcmd -ServerInstance "Karmak_Internal" -Database "QA" -Query "Select ServerName from SoftwareServer ss join System sy on sy.SoftwareServerID = ss.SoftwareServerID where sy.SystemID = $system"
+    $server = Query-Database "Select ServerName from SoftwareServer ss join System sy on sy.SoftwareServerID = ss.SoftwareServerID where sy.SystemID = $system"
     $servername = $server.ServerName
-    $configarr = Invoke-Sqlcmd -ServerInstance "Karmak_Internal" -Database "QA" -Query "Select ServiceName from Service Where SystemID = $system"
+    $configarr = Query-Database "Select ServiceName from Service Where SystemID = $system"
     }
     Catch {
     Log-Error "Failed to return SQL server data"
@@ -65,6 +65,15 @@ IF ($count -eq 0) {
 
 
 }  #  <-----  End of Main
+
+
+
+
+
+Function Query-Database ($q)
+{
+    Invoke-Sqlcmd -ServerInstance "Karmak_Internal" -Database "QA" -Query $q
+}
 
 Function Log-Line ($message)
 {

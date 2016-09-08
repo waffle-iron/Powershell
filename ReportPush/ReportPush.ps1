@@ -25,6 +25,9 @@ Report-Copy $spPath[0], $spPath[1]
 }  # <-----  End of Main
 
 
+
+
+
 Function Log-Line ($message)
 {
     ## Make sure you define the log file variable in the Main function
@@ -54,8 +57,8 @@ Function Report-Copy($a, $b, $c)
         TODO add code to stop print services and push the reports 
             
             ForEach branch in branches
-            Look for all SystemIDs isActiveBuilds = 1 isActive = 1
-            Save ReportPath and PrintServer service name and server
+            DONE Look for all SystemIDs isActiveBuilds = 1 isActive = 1
+            DONE Save ReportPath and PrintServer service name and server
 
             ForEach ID in SysIDs
                 Stop print server service
@@ -76,6 +79,7 @@ Function Report-Copy($a, $b, $c)
             $rptFolder = Query-Database "Select FolderPath from Folder where FolderTypeID = 2 and SystemID = $id"
             $foldername = $rptFolder.FolderPath
 
+            ## Debug code to check the variables returned from the database
             <#
             Write-Host $servername
             Write-Host $servicename
