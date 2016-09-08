@@ -29,7 +29,8 @@ Function Folder-Check
 
         *** Must use SQL query function ***
     #>
-
+        
+        $count = "0"
         $sysIDs = Query-Database "Select SystemID from System Where IsActive = 1 and IsActiveBuilds = 1"
 
         ForEach($id in $sysIDs.SystemID)
@@ -42,12 +43,26 @@ Function Folder-Check
             $foldername = $rptFolder.FolderPath
 
             If (!(Test-Path ($foldername))) 
-            {
+                {
+                Log-Line "Invalid folder paths"
+                Log-Line "--------------------"
+                Log-Line "$foldername"
+                Log-Line ""
+                $count++
+                }
+        }
+        
+        If ($count -eq 0)
+        {
             Log-Line "Invalid folder paths"
             Log-Line "--------------------"
-            Log-Line "$foldername"
+            Log-Line "All good in the hood!  :)"
             Log-Line ""
-            }
+        }
+        Else
+        {
+            Log-Line "There were $count path failures.  :("
+            Log-Line ""
         }
 }
 
