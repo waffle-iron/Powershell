@@ -13,28 +13,13 @@ ToDo:
 
 ## =================================================================================================================================================================
 
-## FUNCTIONS
-
-## Logging function
-function Log-Line ($message, $logfile)
+Function Main
 {
-    Write-Host $message
-    $message | Out-File $logfile
-}
-
-fuction Error-Exit
-{
-    Log-Line "***ERROR***" $log
-    Log-Line $_.Exception.Message $log
-    Error-Exit 
-}
-
-
-## =================================================================================================================================================================
-
-## set log file
-$log = Get-Location
-$log = "$log\log.txt"
+## set the log
+$folder = Get-Location
+$Global:log = "$folder\log.txt"
+$date = Get-Date
+"Log started - $date" | Out-File $log
 
 ## define the build branch
 $count = 0
@@ -61,7 +46,6 @@ $build = "\\pmdevsql\Builds\$branch\Cumulative\Analytics\FusionSelfService\"
 $distro = "C:\DistroTest\FRW\"
 ## $distro = "\\fp_server\Public\Distribution\FusionReportWriter\"
 
-## =================================================================================================================================================================
 
 ## define the previous version folder
 Do{
@@ -75,8 +59,6 @@ Do{
     What is the NEW version number?"
 } until ($newVersion -ne "")
 
-Try {
-
     ## create the new version folder
     new-item $distro -name "$newVersion" -type directory
 
@@ -85,35 +67,56 @@ Try {
     $new = "$distro$newVersion\"
     
     ## create the new folder structure
-    Write-Host "Creating folders"
+    Log-Line "Creating folders"
     new-item -path $new -name "Complete Build" -type directory
     new-item -path $new -name "Cumulative" -type directory
     new-item -path $new -name "Service Pack" -type directory
-    Write-Host "Folders created"
+    Log-Line "Folders created"
 
     ## copy the complete build folder to the new version folder
-    Write-Host "Copying Complete Build"
-    Copy-Item "$old\Complete Build" -Destination "$new" -Force -Recurse -ErrorVariable e
-    Write-Host $e
-    $e | Out-File $log
-    Write-Host "Finished copying Complete Build"
+    Log-Line "Copying Complete Build"
+    Copy-Item "$old\Complete Build" -Destination "$new" -Force -Recurse 
+    Log-Line "Finished copying Complete Build"
 
-    Write-Host "Copying Cumulative"
-    Copy-Item "$old\Cumulative" -Destination "$new" -Force -Recurse -ErrorVariable e
-    Write-Host $e
-    $e | Out-File $log
-    Write-Host "Finished copying Cumulative"
+    Log-Line "Copying Cumulative"
+    Copy-Item "$old\Cumulative" -Destination "$new" -Force -Recurse 
+    Log-Line "Finished copying Cumulative"
 
-    Write-Host "Copying Service Pack"
-    Copy-Item "$build\*" -Destination "$new\Service Pack" -Force -Recurse -ErrorVariable e
-    Write-Host $e
-    $e | Out-File $log
-    Write-Host "Finished copying Service Pack"
+    Log-Line "Copying Service Pack"
+    Copy-Item "$build\*" -Destination "$new\Service Pack" -Force -Recurse 
+    Log-Line "Finished copying Service Pack"
 
 }
-Catch {
 
-    Error-Exit
+
+}  # <----- End of Main
+
+
+## FUNCTIONS
+
+## Logging function
+Function Log-Line ($message)
+{
+    <# Make sure you define the log file variable in the Main function
+        $folder = Get-Location
+        $Global:log = "$folder\log.txt"
+        $date = Get-Date
+        "Log started - $date" | Out-File $log
+    #>
+    $message | Out-File $log -Append
 }
 
-## =================================================================================================================================================================
+Function Log-Error ($message)
+{
+    ## This function is dependent on the Log-Line function
+    Log-Line "***ERROR***" 
+    Log-Line $message 
+    Log-Line "***********" 
+}
+
+fuction Error-Exit
+{
+    Log-Line "***ERROR***" $log
+    Log-Line $_.Exception.Message $log
+    Exit 
+}

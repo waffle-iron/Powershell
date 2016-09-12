@@ -13,39 +13,14 @@ ToDo:
 
 ## =================================================================================================================================================================
 
-## FUNCTIONS
-
-## Zip fuction
-function Zip-Files( $zipfilename, $sourcedir )
+Function Main
 {
-   Add-Type -Assembly System.IO.Compression.FileSystem
-   $compressionLevel = [System.IO.Compression.CompressionLevel]::Optimal
-   [System.IO.Compression.ZipFile]::CreateFromDirectory($sourcedir,
-        $zipfilename, $compressionLevel, $false)
-}
 
-## Logging function
-function Log-Line ($message, $logfile)
-{
-    Write-Host $message
-    $message | Out-File $logfile
-}
-
-fuction Error-Exit
-{
-    Log-Line "***ERROR***" $log
-    Log-Line $_.Exception.Message $log
-    Error-Exit 
-}
-
-
-## =================================================================================================================================================================
-
-## set log file
-$log = Get-Location
-$log = "$log\BI_log.txt"
-
-Get-Date | Out-File $log
+## log file creation
+$folder = Get-Location
+$Global:log = "$folder\log.txt"
+$date = Get-Date
+"Log started - $date" | Out-File $log
 
 ## define the build branch
 $count = 0
@@ -94,30 +69,30 @@ $new = "$distro$newVersion"
 
 Try {
 
-    Log-Line "Creating new folder" $log
+    Log-Line "Creating new folder" 
 
     ## copy everything from the old version to the new version folder
     Copy-Item $old\ -Destination "$new\" -Force -Recurse -ErrorVariable e
-    Log-Line $e $log
+    Log-Line $e 
 
-    Log-Line "New folder created" $log
+    Log-Line "New folder created" 
 
     ## update Upgrade folder
     Copy-Item $build\ -Destination "$new\Upgrade\Application\" -Force -Recurse -ErrorVariable e
-    Log-Line $e $log
+    Log-Line $e 
 
-    Log-Line "Build copied out" $log
+    Log-Line "Build copied out" 
 
     ## delete zip files
     Remove-Item -Include *.zip -Path "$new\" -Recurse
 
-    Log-Line "Zip files deleted" $log
+    Log-Line "Zip files deleted" 
 
     ## update New Install folder
     Copy-Item "$new\Upgrade\Application\" -Destination "$new\New Install\Application\" -Force -Recurse -ErrorVariable e
-    Log-Line $e $log
+    Log-Line $e 
 
-    Log-Line "New Install updated" $log
+    Log-Line "New Install updated" 
 
 ## ================================================================================================================================================================+
 
@@ -127,7 +102,7 @@ Try {
 
     Zip-Files $za $sa
 
-    Log-Line "Application folder zipped" $log
+    Log-Line "Application folder zipped" 
 
     ## zip process data folder
     $zp = "C:\DistroTest\2.0.0.0\Upgrade\Application\ProcessData.zip"
@@ -135,7 +110,7 @@ Try {
 
     Zip-Files $zp $sp
 
-    Log-Line "Process Data folder zipped" $log
+    Log-Line "Process Data folder zipped" 
 
     ## zip web folder
     $zw = "C:\DistroTest\2.0.0.0\Upgrade\Application\Web.zip"
@@ -143,7 +118,7 @@ Try {
 
     Zip-Files $zw $sw
 
-    Log-Line "Web folder zipped" $log
+    Log-Line "Web folder zipped" 
 
     Get-Date | Out-File $log -Append
 
@@ -155,3 +130,45 @@ Catch {
     Error-Exit
 
 }
+
+}  #  <----- End of Main
+
+## FUNCTIONS
+
+## Zip fuction
+function Zip-Files( $zipfilename, $sourcedir )
+{
+   Add-Type -Assembly System.IO.Compression.FileSystem
+   $compressionLevel = [System.IO.Compression.CompressionLevel]::Optimal
+   [System.IO.Compression.ZipFile]::CreateFromDirectory($sourcedir,
+        $zipfilename, $compressionLevel, $false)
+}
+
+Function Log-Line ($message)
+{
+    <# Make sure you define the log file variable in the Main function
+        $folder = Get-Location
+        $Global:log = "$folder\log.txt"
+        $date = Get-Date
+        "Log started - $date" | Out-File $log
+    #>
+    $message | Out-File $log -Append
+}
+
+Function Log-Error ($message)
+{
+    ## This function is dependent on the Log-Line function
+    Log-Line "***ERROR***" 
+    Log-Line $message 
+    Log-Line "***********" 
+}
+fuction Error-Exit
+{
+    Log-Line "***ERROR***" 
+    Log-Line $_.Exception.Message 
+    Error-Exit 
+}
+
+
+Main
+
