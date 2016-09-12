@@ -2,6 +2,12 @@
 
 Test to check QA environment configuration
 
+    Test the folder paths listed in the QA database to make sure they exists
+
+    Log all systems that are active in the database
+
+    Log all systems that are set to receive builds in the database
+
 #>
 
 Function Main
@@ -54,9 +60,11 @@ Function Folder-Check
         
         If ($count -eq 0)
         {
+            $message = @("All folders pass! :)", "All good! :)", "Nothing to report here. :)", "Everything checked out fine. :)", "100% :)" )
+            $random = Get-Random -Minimum 0 -Maximum 4
             Log-Line "Invalid folder paths"
             Log-Line "--------------------"
-            Log-Line "All good in the hood!  :)"
+            Log-Line $message[$random]
             Log-Line ""
         }
         Else
