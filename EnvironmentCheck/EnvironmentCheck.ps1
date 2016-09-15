@@ -2,6 +2,12 @@
 
 Test to check QA environment configuration
 
+    Log all Future systems receiving builds
+    Log all Current systems receiving builds
+    Log all ServicePack systems receiving builds
+    Log all systems that are active in the database
+    Log all systems that are set to receive builds in the database
+
 #>
 
 Function Main
@@ -12,59 +18,77 @@ Function Main
     "Log started - $date" | Out-File $log
     Log-Line ""
 
-    Folder-Check
-    Active-Check
+    Future-Check
+    Current-Check
+    SP-Check
     Active-BuildsCheck
+    Active-Check
 
 }  # <--- END OF MAIN 
 
 
-
-
-
-Function Folder-Check
+Function Future-Check
 {
     <#
-        Check to see if all the folder paths in the database are valid.
+        Check to see what systems are active and receiving Future builds
 
         *** Must use SQL query function ***
     #>
-        
-        $count = "0"
-        $sysIDs = Query-Database "Select SystemID from System Where IsActive = 1 and IsActiveBuilds = 1"
+        $a = Query-Database "Select s.DeploymentName, ss.ServerName from System s JOIN SoftwareServer ss on ss.SoftwareServerID = s.SoftwareServerID where s.IsActive = 1 and s.BuildID = 1 and s.IsActiveBuilds = 1 Order By s.DeploymentName Asc"
+        Log-Line "Future Systems"
+        Log-Line "-----------------"
+        ForEach ($onea in $a)
+        {
+            $deploymentname = $onea.DeploymentName
+            $servername = $onea.ServerName
+            Log-Line "$deploymentname  -  $servername"
+        }
+        Log-Line ""
 
-        ForEach($id in $sysIDs.SystemID)
-        {
-            $server = Query-Database "Select ServerName from SoftwareServer ss join System sy on sy.SoftwareServerID = ss.SoftwareServerID where sy.SystemID = $id"
-            $servername = $server.ServerName
-            $configarr = Query-Database "Select ServiceName from Service Where SystemID = $id and ServiceTypeID = 2"
-            $servicename = $configarr.ServiceName
-            $rptFolder = Query-Database "Select FolderPath from Folder where FolderTypeID = 2 and SystemID = $id"
-            $foldername = $rptFolder.FolderPath
-
-            If (!(Test-Path ($foldername))) 
-                {
-                Log-Line "Invalid folder paths"
-                Log-Line "--------------------"
-                Log-Line "$foldername"
-                Log-Line ""
-                $count++
-                }
-        }
-        
-        If ($count -eq 0)
-        {
-            Log-Line "Invalid folder paths"
-            Log-Line "--------------------"
-            Log-Line "All good in the hood!  :)"
-            Log-Line ""
-        }
-        Else
-        {
-            Log-Line "There were $count path failures.  :("
-            Log-Line ""
-        }
 }
+
+
+Function Current-Check
+{
+    <#
+        Check to see what systems are active and receiving Current builds
+
+        *** Must use SQL query function ***
+    #>
+        $a = Query-Database "Select s.DeploymentName, ss.ServerName from System s JOIN SoftwareServer ss on ss.SoftwareServerID = s.SoftwareServerID where s.IsActive = 1 and s.BuildID = 2 and s.IsActiveBuilds = 1 Order By s.DeploymentName Asc"
+        Log-Line "Current Systems"
+        Log-Line "-----------------"
+        ForEach ($onea in $a)
+        {
+            $deploymentname = $onea.DeploymentName
+            $servername = $onea.ServerName
+            Log-Line "$deploymentname  -  $servername"
+        }
+        Log-Line ""
+
+}
+
+
+Function SP-Check
+{
+    <#
+        Check to see what systems are active and receiving ServicePack builds
+
+        *** Must use SQL query function ***
+    #>
+        $a = Query-Database "Select s.DeploymentName, ss.ServerName from System s JOIN SoftwareServer ss on ss.SoftwareServerID = s.SoftwareServerID where s.IsActive = 1 and s.BuildID = 3 and s.IsActiveBuilds = 1 Order By s.DeploymentName Asc"
+        Log-Line "Service Pack Systems"
+        Log-Line "--------------------"
+        ForEach ($onea in $a)
+        {
+            $deploymentname = $onea.DeploymentName
+            $servername = $onea.ServerName
+            Log-Line "$deploymentname  -  $servername"
+        }
+        Log-Line ""
+
+}
+
 
 Function Active-Check
 {
@@ -103,6 +127,7 @@ Function Active-BuildsCheck
             $servername = $oneb.ServerName
             Log-Line "$deploymentname  -  $servername"
         }
+        Log-Line ""
 }
 
 Function Query-Database ($q)
