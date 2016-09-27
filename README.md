@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/agffthwork/Powershell.png?label=ready&title=Ready)](https://waffle.io/agffthwork/Powershell)
 # Powershell
 Powershell scripts
 
